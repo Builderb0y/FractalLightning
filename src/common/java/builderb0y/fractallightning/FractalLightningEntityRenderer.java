@@ -4,10 +4,12 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.joml.Matrix4f;
 
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
+import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LightningEntity;
@@ -35,12 +37,30 @@ public class FractalLightningEntityRenderer extends EntityRenderer<LightningEnti
 		state.seed = entity.seed;
 	}
 
-	@Override
-	public void render(LightningEntityRenderState state, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
-		VertexConsumer buffer = vertexConsumers.getBuffer(LightningRenderer.LIGHTNING_LAYER);
-		Matrix4f matrix = matrices.peek().getPositionMatrix();
-		new LightningRendererImpl(matrix, buffer, state.age).generatePoints(state.seed);
-	}
+	#if MC_VERSION >= MC_1_21_9
+
+		@Override
+		public void render(
+			LightningEntityRenderState state,
+			MatrixStack matrices,
+			net.minecraft.client.render.command.OrderedRenderCommandQueue queue,
+			CameraRenderState cameraState
+		) {
+			queue.submitCustom(matrices, RenderLayer.getLightning(), (MatrixStack.Entry matrix, VertexConsumer buffer) -> {
+				new LightningRendererImpl(matrix.getPositionMatrix(), buffer, state.age).generatePoints(state.seed);
+			});
+		}
+
+	#else
+
+		@Override
+		public void render(LightningEntityRenderState state, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
+			VertexConsumer buffer = vertexConsumers.getBuffer(LightningRenderer.LIGHTNING_LAYER);
+			Matrix4f matrix = matrices.peek().getPositionMatrix();
+			new LightningRendererImpl(matrix, buffer, state.age).generatePoints(state.seed);
+		}
+
+	#endif
 
 	@Override
 	public boolean canBeCulled(LightningEntity entity) {

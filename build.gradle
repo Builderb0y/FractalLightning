@@ -3,7 +3,7 @@ import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
 plugins() {
-	id('fabric-loom') version('1.10-SNAPSHOT')
+	id('fabric-loom') version('1.11-SNAPSHOT')
 }
 
 version = project.mod_version
@@ -11,6 +11,19 @@ group = project.maven_group
 
 base() {
 	archivesName = project.archives_base_name
+}
+
+static int compareVersions(String versionA, String versionB) {
+	String[] splitA = versionA.split('\\.')
+	String[] splitB = versionB.split('\\.')
+	for (int index = 0; index < 3; index++) {
+		int compare = Integer.compare(
+			Integer.parseInt(splitA[index]),
+			Integer.parseInt(splitB[index])
+		)
+		if (compare != 0) return compare
+	}
+	return 0
 }
 
 sourceSets() {
@@ -83,7 +96,14 @@ dependencies() {
 	minecraft("com.mojang:minecraft:${ project.minecraft_version }")
 	mappings("net.fabricmc:yarn:${ project.yarn_mappings }:v2")
 	modImplementation("net.fabricmc:fabric-loader:${ project.loader_version }")
-	//modImplementation("net.fabricmc.fabric-api:fabric-api:${ project.fabric_version }")
+
+	//work around either modmenu or cloth config needing this and not providing it.
+	if (compareVersions(project.minecraft_version, '1.21.9') >= 0) {
+		//2nd workaround for the fact that
+		//modRuntimeOnly(fabricApi.module('fabric-resource-loader-v1', project.fabric_version))
+		//doesn't seem to work.
+		modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:${ project.fabric_version }")
+	}
 
 	jijModImplementation("maven.modrinth:modmenu:${ project.modmenu_version }")
 	jijModImplementation("maven.modrinth:cloth-config:${ project.cloth_config_version }")
@@ -112,19 +132,6 @@ dependencies() {
 
 loom() {
 	accessWidenerPath = file("src/${ project.minecraft_version }/resources/fractallightning.accesswidener")
-}
-
-static int compareVersions(String versionA, String versionB) {
-	String[] splitA = versionA.split('\\.')
-	String[] splitB = versionB.split('\\.')
-	for (int index = 0; index < 3; index++) {
-		int compare = Integer.compare(
-			Integer.parseInt(splitA[index]),
-			Integer.parseInt(splitB[index])
-		)
-		if (compare != 0) return compare
-	}
-	return 0
 }
 
 int targetJavaVersion = compareVersions(project.minecraft_version, '1.20.5') >= 0 ? 21 : 17
@@ -233,6 +240,7 @@ for (Version version in [
 	new Version(21, 4),
 	new Version(21, 5),
 	new Version(21, 8),
+	new Version(21, 10),
 ]) {
 	Version capturedVersion = version
 	tasks.register("Switch to ${capturedVersion.longhand()}", WriteProperties) {
@@ -259,6 +267,8 @@ MC_1_21_5=12105
 MC_1_21_6=12106
 MC_1_21_7=12107
 MC_1_21_8=12108
+MC_1_21_9=12109
+MC_1_21_10=12110
 MC_VERSION=${capturedVersion.shorthand()}"""
 			)
 		}

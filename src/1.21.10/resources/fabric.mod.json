@@ -1,0 +1,27 @@
+{
+	"schemaVersion": 1,
+	"id": "fractallightning",
+	"version": "${version}",
+	"name": "Fractal Lightning",
+	"description": "Makes lightning bolts look cooler.",
+	"authors": [
+		"Builderb0y"
+	],
+	"contact": {},
+	"license": "MIT",
+	"icon": "assets/fractallightning/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"main": [ "builderb0y.fractallightning.FractalLightning" ],
+		"client": [ "builderb0y.fractallightning.FractallightningClient" ],
+		"modmenu": [ "builderb0y.fractallightning.config.ModMenuCompat" ]
+	},
+	"mixins": [
+		"fractallightning.mixins.json"
+	],
+	"accessWidener": "fractallightning.accesswidener",
+	"depends": {
+		"fabricloader": ">=0.17.2",
+		"minecraft": [ "1.21.9", "1.21.10" ]
+	}
+}
