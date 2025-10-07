@@ -161,6 +161,15 @@ jar() {
 	}
 }
 
+processResources() {
+	inputs.property('version', project.version)
+	filteringCharset('UTF-8')
+
+	filesMatching('fabric.mod.json') {
+		expand('version': project.version, 'mc_version': project.minecraft_version)
+	}
+}
+
 tasks.register('copyToReleases', Copy) {
 	dependsOn(remapJar)
 	from("$projectDir/build/libs") {

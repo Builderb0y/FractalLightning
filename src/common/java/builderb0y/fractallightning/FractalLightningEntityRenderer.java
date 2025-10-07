@@ -9,7 +9,6 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LightningEntity;
@@ -44,7 +43,7 @@ public class FractalLightningEntityRenderer extends EntityRenderer<LightningEnti
 			LightningEntityRenderState state,
 			MatrixStack matrices,
 			net.minecraft.client.render.command.OrderedRenderCommandQueue queue,
-			CameraRenderState cameraState
+			net.minecraft.client.render.state.CameraRenderState cameraState
 		) {
 			queue.submitCustom(matrices, RenderLayer.getLightning(), (MatrixStack.Entry matrix, VertexConsumer buffer) -> {
 				new LightningRendererImpl(matrix.getPositionMatrix(), buffer, state.age).generatePoints(state.seed);
