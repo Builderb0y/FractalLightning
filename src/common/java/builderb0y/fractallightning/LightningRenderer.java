@@ -1,21 +1,21 @@
 package builderb0y.fractallightning;
 
-import java.time.LocalDate;
-import java.time.Month;
-
 import net.fabricmc.loader.api.FabricLoader;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.util.math.ColorHelper;
 
 public abstract class LightningRenderer {
 
 	public static RenderLayer LIGHTNING_LAYER;
 	static {
-		RenderLayer layer = RenderLayer.getLightning();
+		#if MC_VERSION >= MC_1_21_11
+			RenderLayer layer = net.minecraft.client.render.RenderLayers.lightning();
+		#else
+			RenderLayer layer = RenderLayer.getLightning();
+		#endif
 		got:
 		if (FabricLoader.getInstance().isModLoaded("iris")) {
 			try {

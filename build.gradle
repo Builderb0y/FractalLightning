@@ -3,7 +3,7 @@ import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
 plugins() {
-	id('fabric-loom') version('1.11-SNAPSHOT')
+	id('fabric-loom') version('1.14-SNAPSHOT')
 }
 
 version = project.mod_version
@@ -128,6 +128,9 @@ dependencies() {
 	modImplementation(fileTree(file('dependencies/implementation')))
 	modCompileOnly(fileTree(file('dependencies/compileOnly')))
 	modRuntimeOnly(fileTree(file('dependencies/runtimeOnly')))
+
+	testImplementation('org.junit.jupiter:junit-jupiter:5.7.1')
+	testRuntimeOnly('org.junit.platform:junit-platform-launcher')
 }
 
 loom() {
@@ -148,7 +151,6 @@ java() {
 	if (JavaVersion.current() < javaVersion) {
 		toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
 	}
-	archivesBaseName = project.archives_base_name
 	withSourcesJar()
 
 	sourceCompatibility = JavaLanguageVersion.of(17)
@@ -157,7 +159,7 @@ java() {
 
 jar() {
 	from("LICENSE") {
-		rename() { "${ it }_${ project.archivesBaseName }" }
+		rename() { "${ it }_${ project.archives_base_name }" }
 	}
 }
 
@@ -173,9 +175,9 @@ processResources() {
 tasks.register('copyToReleases', Copy) {
 	dependsOn(remapJar)
 	from("$projectDir/build/libs") {
-		include("$archivesBaseName-${ project.version }.jar")
+		include("$project.archives_base_name-${ project.version }.jar")
 		rename() {
-			"$archivesBaseName-$project.version-MC${ minecraft_version }.jar"
+			"$project.archives_base_name-$project.version-MC${ minecraft_version }.jar"
 		}
 	}
 	into(file("releases/${ project.version.toString().replace('.' as char, '/' as char) }"))
@@ -183,10 +185,11 @@ tasks.register('copyToReleases', Copy) {
 
 test() {
 	doFirst() {
-		if (file("releases/${project.version.toString().replace('.' as char, '/' as char)}/$archivesBaseName-$project.version-MC${minecraft_version}.jar").exists()) {
+		if (file("releases/${project.version.toString().replace('.' as char, '/' as char)}/$project.archives_base_name-$project.version-MC${minecraft_version}.jar").exists()) {
 			throw new IllegalStateException("Release file $project.version-MC$minecraft_version already exists. If you intend to overwrite this file, delete it first. Otherwise, you probably forgot to bump the version.")
 		}
 	}
+	useJUnitPlatform()
 }
 
 build() {
@@ -250,6 +253,7 @@ for (Version version in [
 	new Version(21, 5),
 	new Version(21, 8),
 	new Version(21, 10),
+	new Version(21, 11),
 ]) {
 	Version capturedVersion = version
 	tasks.register("Switch to ${capturedVersion.longhand()}", WriteProperties) {
@@ -278,6 +282,7 @@ MC_1_21_7=12107
 MC_1_21_8=12108
 MC_1_21_9=12109
 MC_1_21_10=12110
+MC_1_21_11=12111
 MC_VERSION=${capturedVersion.shorthand()}"""
 			)
 		}

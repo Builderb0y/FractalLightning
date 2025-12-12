@@ -45,9 +45,13 @@ public class FractalLightningEntityRenderer extends EntityRenderer<LightningEnti
 			net.minecraft.client.render.command.OrderedRenderCommandQueue queue,
 			net.minecraft.client.render.state.CameraRenderState cameraState
 		) {
-			queue.submitCustom(matrices, RenderLayer.getLightning(), (MatrixStack.Entry matrix, VertexConsumer buffer) -> {
-				new LightningRendererImpl(matrix.getPositionMatrix(), buffer, state.age).generatePoints(state.seed);
-			});
+			queue.submitCustom(
+				matrices,
+				LightningRenderer.LIGHTNING_LAYER,
+				(MatrixStack.Entry matrix, VertexConsumer buffer) -> {
+					new LightningRendererImpl(matrix.getPositionMatrix(), buffer, state.age).generatePoints(state.seed);
+				}
+			);
 		}
 
 	#else
