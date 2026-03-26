@@ -3,7 +3,7 @@ import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
 plugins() {
-	id('fabric-loom') version('1.14-SNAPSHOT')
+	id('net.fabricmc.fabric-loom') version('1.15-SNAPSHOT')
 }
 
 version = project.mod_version
@@ -11,19 +11,6 @@ group = project.maven_group
 
 base() {
 	archivesName = project.archives_base_name
-}
-
-static int compareVersions(String versionA, String versionB) {
-	String[] splitA = versionA.split('\\.')
-	String[] splitB = versionB.split('\\.')
-	for (int index = 0; index < 3; index++) {
-		int compare = Integer.compare(
-			Integer.parseInt(splitA[index]),
-			Integer.parseInt(splitB[index])
-		)
-		if (compare != 0) return compare
-	}
-	return 0
 }
 
 sourceSets() {
@@ -49,6 +36,14 @@ repositories() {
 	maven() {
 		url('https://api.modrinth.com/maven')
 	}
+
+	//for yacl.
+	repositories {
+		maven() {
+			url("https://maven.isxander.dev/releases")
+		}
+	}
+
 	//loom does this automatically, but does it too late.
 	//we need to ensure this gets added as a repository before
 	//all the hacks below that make JIJ dependencies work.
@@ -62,13 +57,13 @@ repositories() {
 }
 
 configurations() {
-	jijModImplementation() {
+	jijImplementation() {
 		canBeResolved = true
 	}
-	jijModRuntimeOnly() {
+	jijRuntimeOnly() {
 		canBeResolved = true
 	}
-	jijModCompileOnly() {
+	jijCompileOnly() {
 		canBeResolved = true
 	}
 }
@@ -79,14 +74,35 @@ static void extractNestedJars(File dependenciesFolder, File toUnpack) {
 		while (entries.hasMoreElements()) {
 			JarEntry entry = entries.nextElement()
 			String name = entry.getName()
-			if (name.startsWith('META-INF/jars/') && name.endsWith('.jar')) {
-				name = name.substring('META-INF/jars'.length())
-				File unpacked = new File(dependenciesFolder, name)
-				if (unpacked.exists()) continue
+			if (name.startsWith('META-INF/jars/') && name.endsWith('.jar') && !name.regionMatches(false, 'META-inf/jars/'.length(), 'fabric-', 0, 'fabric-'.length())) {
+				name = name.substring('META-INF/jars/'.length())
+				File unpackDir = new File(dependenciesFolder, name.substring(0, name.length() - '.jar'.length()))
+				unpackDir.mkdir()
+				File unpacked = new File(unpackDir, name)
 				try (FileOutputStream out = new FileOutputStream(unpacked)) {
 					jar.getInputStream(entry).transferTo(out)
 				}
-				extractNestedJars(dependenciesFolder, unpacked)
+				extractNestedJars(unpackDir, unpacked)
+			}
+		}
+	}
+}
+
+void extractDependencies() {
+	File jijDependenciesFolder = file('jijDependencies')
+	jijDependenciesFolder.deleteDir()
+	jijDependenciesFolder.mkdir()
+	for (String dependencyType : [ 'implementation', 'runtimeOnly', 'compileOnly' ]) {
+		File specificDependenciesFolder = new File(jijDependenciesFolder, dependencyType)
+		specificDependenciesFolder.mkdir()
+		for (File from : getConfigurations().getByName("jij${ dependencyType.capitalize() }").getResolvedConfiguration().getResolvedArtifacts().file) {
+			String fileName = from.getName()
+			File fromRoot = new File(specificDependenciesFolder, fileName.substring(0, fileName.length() - '.jar'.length()))
+			fromRoot.mkdir()
+			File to = new File(fromRoot, fileName)
+			if (!to.exists()) {
+				Files.copy(from.toPath(), to.toPath())
+				extractNestedJars(fromRoot, to)
 			}
 		}
 	}
@@ -94,40 +110,20 @@ static void extractNestedJars(File dependenciesFolder, File toUnpack) {
 
 dependencies() {
 	minecraft("com.mojang:minecraft:${ project.minecraft_version }")
-	mappings(loom.officialMojangMappings())
-	modImplementation("net.fabricmc:fabric-loader:${ project.loader_version }")
+	implementation("net.fabricmc:fabric-loader:${ project.loader_version }")
 
-	//work around either modmenu or cloth config needing this and not providing it.
-	if (compareVersions(project.minecraft_version, '1.21.9') >= 0) {
-		//2nd workaround for the fact that
-		//modRuntimeOnly(fabricApi.module('fabric-resource-loader-v1', project.fabric_version))
-		//doesn't seem to work.
-		modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:${ project.fabric_version }")
+	jijImplementation("maven.modrinth:modmenu:${ project.modmenu_version }")
+	jijImplementation("dev.isxander:yet-another-config-lib:${ project.yacl_version }") {
+		transitive = false
 	}
-
-	jijModImplementation("maven.modrinth:modmenu:${ project.modmenu_version }")
-	jijModImplementation("maven.modrinth:cloth-config:${ project.cloth_config_version }")
+	runtimeOnly("net.fabricmc.fabric-api:fabric-api:${ project.fabric_version }")
 
 	annotationProcessor('systems.manifold:manifold-preprocessor:2025.1.23')
 
-	File dependenciesFolder = file('dependencies')
-	dependenciesFolder.deleteDir()
-	dependenciesFolder.mkdir()
-	for (String dependencyType : [ 'implementation', 'runtimeOnly', 'compileOnly' ]) {
-		File specificDependenciesFolder = new File(dependenciesFolder, dependencyType)
-		specificDependenciesFolder.mkdir()
-		for (File from : getConfigurations().getByName("jijMod${ dependencyType.capitalize() }").getResolvedConfiguration().getResolvedArtifacts().file) {
-			String fileName = from.getName()
-			File to = new File(specificDependenciesFolder, fileName)
-			if (!to.exists()) {
-				Files.copy(from.toPath(), to.toPath())
-				extractNestedJars(specificDependenciesFolder, to)
-			}
-		}
-	}
-	modImplementation(fileTree(file('dependencies/implementation')))
-	modCompileOnly(fileTree(file('dependencies/compileOnly')))
-	modRuntimeOnly(fileTree(file('dependencies/runtimeOnly')))
+	extractDependencies()
+	implementation(fileTree(file('jijDependencies/implementation')))
+	compileOnly(fileTree(file('jijDependencies/compileOnly')))
+	runtimeOnly(fileTree(file('jijDependencies/runtimeOnly')))
 
 	testImplementation('org.junit.jupiter:junit-jupiter:5.7.1')
 	testRuntimeOnly('org.junit.platform:junit-platform-launcher')
@@ -137,7 +133,7 @@ loom() {
 	accessWidenerPath = file("src/${ project.minecraft_version }/resources/fractallightning.accesswidener")
 }
 
-int targetJavaVersion = compareVersions(project.minecraft_version, '1.20.5') >= 0 ? 21 : 17
+int targetJavaVersion = 25
 tasks.withType(JavaCompile).configureEach() {
 	it.options.encoding = "UTF-8"
 }
@@ -153,7 +149,7 @@ java() {
 	}
 	withSourcesJar()
 
-	sourceCompatibility = JavaLanguageVersion.of(17)
+	sourceCompatibility = JavaLanguageVersion.of(targetJavaVersion)
 	targetCompatibility = JavaLanguageVersion.of(targetJavaVersion)
 }
 
@@ -173,7 +169,7 @@ processResources() {
 }
 
 tasks.register('copyToReleases', Copy) {
-	dependsOn(remapJar)
+	dependsOn(jar)
 	from("$projectDir/build/libs") {
 		include("$project.archives_base_name-${ project.version }.jar")
 		rename() {
@@ -198,12 +194,12 @@ build() {
 
 class Version {
 
-	int major
-	int minor
+	int year, drop, fix
 
-	Version(int major, int minor) {
-		this.major = major
-		this.minor = minor
+	Version(int year, int drop, int fix) {
+		this.year = year
+		this.drop = drop
+		this.fix = fix
 	}
 
 	static String pad(int number) {
@@ -211,11 +207,11 @@ class Version {
 	}
 
 	String shorthand() {
-		return "1${pad(major)}${pad(minor)}"
+		return "${year}${pad(drop)}${pad(fix)}"
 	}
 
 	String longhand() {
-		return "1.${major}.${minor}"
+		return this.fix == 0 ? "${year}.${drop}" : "${year}.${drop}.${fix}"
 	}
 }
 
@@ -243,17 +239,7 @@ tasks.register("Currently V$project.version for MC $project.minecraft_version") 
 }
 
 for (Version version in [
-	new Version(20, 1),
-	new Version(20, 2),
-	new Version(20, 4),
-	new Version(20, 6),
-	new Version(21, 1),
-	new Version(21, 3),
-	new Version(21, 4),
-	new Version(21, 5),
-	new Version(21, 8),
-	new Version(21, 10),
-	new Version(21, 11),
+	new Version(26, 1, 0),
 ]) {
 	Version capturedVersion = version
 	tasks.register("Switch to ${capturedVersion.longhand()}", WriteProperties) {
@@ -264,25 +250,7 @@ for (Version version in [
 		doLast() {
 			file('build.properties').text = (
 			"""#This file was automatically generated by gradle. Do not touch!
-MC_1_20_0=12000
-MC_1_20_1=12001
-MC_1_20_2=12002
-MC_1_20_3=12003
-MC_1_20_4=12004
-MC_1_20_5=12005
-MC_1_20_6=12006
-MC_1_21_0=12100
-MC_1_21_1=12101
-MC_1_21_2=12102
-MC_1_21_3=12103
-MC_1_21_4=12104
-MC_1_21_5=12105
-MC_1_21_6=12106
-MC_1_21_7=12107
-MC_1_21_8=12108
-MC_1_21_9=12109
-MC_1_21_10=12110
-MC_1_21_11=12111
+MC_26_1_0=260100
 MC_VERSION=${capturedVersion.shorthand()}"""
 			)
 		}

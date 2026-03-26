@@ -2,8 +2,7 @@ package builderb0y.fractallightning.config;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
-import me.shedaniel.autoconfig.AutoConfig;
-import me.shedaniel.autoconfig.ConfigData;
+
 import net.minecraft.client.gui.screens.Screen;
 
 public class ModMenuCompat implements ModMenuApi {
@@ -23,7 +22,7 @@ public class ModMenuCompat implements ModMenuApi {
 	public static class ClothCode {
 
 		public static Screen getConfigScreen(Screen parent) {
-			return AutoConfig.getConfigScreen(FractalLightningConfig.class.asSubclass(ConfigData.class), parent).get();
+			return YaclCompat.YaclCode.HANDLER.generateGui().generateScreen(parent);
 		}
 	}
 }

@@ -1,4 +1,6 @@
 {
-	"text.autoconfig.fractallightning.option.rainbow_mode": "Rainbow Mode",
-	"text.autoconfig.fractallightning.option.rainbow_mode.@Tooltip": "Valid values: always, pride_month_only"
+	"yacl3.config.fractallightning:config.rainbow_mode": "Rainbow Mode",
+	"yacl3.config.enum.RainbowMode.always": "Always",
+	"yacl3.config.enum.RainbowMode.pride_month_only": "Pride Month Only",
+	"config.fractallightning.rainbow_mode.comment": "Valid values: always, pride_month_only"
 }

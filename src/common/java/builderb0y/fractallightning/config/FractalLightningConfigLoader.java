@@ -104,6 +104,7 @@ public class FractalLightningConfigLoader {
 				LOGGER.warn("Ignoring malformed line " + line);
 			}
 		});
+		config.validatePostLoad();
 		return config;
 	}
 
@@ -117,13 +118,13 @@ public class FractalLightningConfigLoader {
 		for (Method method : FractalLightningConfig.class.getDeclaredMethods()) {
 			if (method.isAnnotationPresent(Savable.class)) {
 				{
-					JsonElement element = lang.get("text.autoconfig.fractallightning.option." + method.getName() + ".@Tooltip");
+					JsonElement element = lang.get("config.fractallightning." + method.getName() + ".comment");
 					if (element != null) {
 						builder.append('#').append(element.getAsString()).append('\n');
 					}
 				}
 				for (int tooltipIndex = 0; true; tooltipIndex++) {
-					JsonElement element = lang.get("text.autoconfig.fractallightning.option." + method.getName() + ".@Tooltip[" + tooltipIndex + ']');
+					JsonElement element = lang.get("config.fractallightning." + method.getName() + ".comment." + tooltipIndex);
 					if (element == null) break;
 					builder.append('#').append(element.getAsString()).append('\n');
 				}
