@@ -1,11 +1,9 @@
 package builderb0y.fractallightning;
 
 import org.joml.Matrix4f;
-
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.util.math.ColorHelper;
-
 import builderb0y.fractallightning.config.FractalLightningConfig;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.util.ARGB;
 
 public class LightningRendererImpl extends LightningRenderer {
 
@@ -79,8 +77,8 @@ public class LightningRendererImpl extends LightningRenderer {
 			green = Math.sqrt(green * rcpMagnitude);
 			blue  = Math.sqrt(blue  * rcpMagnitude);
 
-			innerArgb = ColorHelper.getArgb(127, Math.min((int)(red *  64.0D + 192.0D), 255), Math.min((int)(green *  64.0D + 192.0D), 255), Math.min((int)(blue *  64.0D + 192.0D), 255));
-			outerArgb = ColorHelper.getArgb(  0, Math.min((int)(red * 256.0D         ), 255), Math.min((int)(green * 256.0D         ), 255), Math.min((int)(blue * 256.0D         ), 255));
+			innerArgb = ARGB.color(127, Math.min((int)(red *  64.0D + 192.0D), 255), Math.min((int)(green *  64.0D + 192.0D), 255), Math.min((int)(blue *  64.0D + 192.0D), 255));
+			outerArgb = ARGB.color(  0, Math.min((int)(red * 256.0D         ), 255), Math.min((int)(green * 256.0D         ), 255), Math.min((int)(blue * 256.0D         ), 255));
 		}
 		else {
 			innerArgb = 0x7FFFFFFF;

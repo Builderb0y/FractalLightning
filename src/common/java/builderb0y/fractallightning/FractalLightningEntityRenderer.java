@@ -1,53 +1,52 @@
 package builderb0y.fractallightning;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.command.OrderedRenderCommandQueue;
-import net.minecraft.client.render.entity.EntityRenderer;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.state.LightningEntityRenderState;
-import net.minecraft.client.render.state.CameraRenderState;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.LightningEntity;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.state.LightningBoltRenderState;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.world.entity.LightningBolt;
 
 @Environment(EnvType.CLIENT)
-public class FractalLightningEntityRenderer extends EntityRenderer<LightningEntity, LightningEntityRenderState> {
+public class FractalLightningEntityRenderer extends EntityRenderer<LightningBolt, LightningBoltRenderState> {
 
-	public FractalLightningEntityRenderer(EntityRendererFactory.Context context) {
+	public FractalLightningEntityRenderer(EntityRendererProvider.Context context) {
 		super(context);
 	}
 
 	@Override
-	public LightningEntityRenderState createRenderState() {
-		return new LightningEntityRenderState();
+	public LightningBoltRenderState createRenderState() {
+		return new LightningBoltRenderState();
 	}
 
 	@Override
-	public void updateRenderState(LightningEntity entity, LightningEntityRenderState state, float tickDelta) {
-		super.updateRenderState(entity, state, tickDelta);
+	public void extractRenderState(LightningBolt entity, LightningBoltRenderState state, float tickDelta) {
+		super.extractRenderState(entity, state, tickDelta);
 		state.seed = entity.seed;
 	}
 
 	@Override
-	public void render(
-		LightningEntityRenderState state,
-		MatrixStack matrices,
-		OrderedRenderCommandQueue queue,
+	public void submit(
+		LightningBoltRenderState state,
+		PoseStack matrices,
+		SubmitNodeCollector queue,
 		CameraRenderState cameraState
 	) {
-		queue.submitCustom(
+		queue.submitCustomGeometry(
 			matrices,
 			LightningRenderer.LIGHTNING_LAYER,
-			(MatrixStack.Entry matrix, VertexConsumer buffer) -> {
-				new LightningRendererImpl(matrix.getPositionMatrix(), buffer, state.age).generatePoints(state.seed);
+			(PoseStack.Pose matrix, VertexConsumer buffer) -> {
+				new LightningRendererImpl(matrix.pose(), buffer, state.ageInTicks).generatePoints(state.seed);
 			}
 		);
 	}
 
 	@Override
-	public boolean canBeCulled(LightningEntity entity) {
+	public boolean affectedByCulling(LightningBolt entity) {
 		return false;
 	}
 }

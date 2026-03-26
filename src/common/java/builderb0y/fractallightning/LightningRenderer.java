@@ -1,29 +1,28 @@
 package builderb0y.fractallightning;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderLayers;
-import net.minecraft.client.render.VertexConsumer;
-
 public abstract class LightningRenderer {
 
-	public static RenderLayer LIGHTNING_LAYER;
+	public static RenderType LIGHTNING_LAYER;
 
 	static {
-		RenderLayer layer = RenderLayers.lightning();
+		RenderType layer = RenderTypes.lightning();
 		got:
 		if (FabricLoader.getInstance().isModLoaded("iris")) {
 			try {
-				layer = (RenderLayer)(Class.forName("net.irisshaders.iris.pathways.LightningHandler").getDeclaredField("IRIS_LIGHTNING").get(null));
+				layer = (RenderType)(Class.forName("net.irisshaders.iris.pathways.LightningHandler").getDeclaredField("IRIS_LIGHTNING").get(null));
 				FractalLightning.LOGGER.info("Using new iris lightning render layer.");
 				break got;
 			}
 			catch (Exception ignored) {}
 			try {
-				layer = (RenderLayer)(Class.forName("net.coderbot.iris.pipeline.LightningHandler").getDeclaredField("IRIS_LIGHTNING").get(null));
+				layer = (RenderType)(Class.forName("net.coderbot.iris.pipeline.LightningHandler").getDeclaredField("IRIS_LIGHTNING").get(null));
 				FractalLightning.LOGGER.info("Using old iris lightning render layer.");
 				break got;
 			}
@@ -326,6 +325,6 @@ public abstract class LightningRenderer {
 	}
 
 	public void vertex(float x, float y, float z, int argb) {
-		this.buffer.vertex(x, y, z).color(argb);
+		this.buffer.addVertex(x, y, z).setColor(argb);
 	}
 }
