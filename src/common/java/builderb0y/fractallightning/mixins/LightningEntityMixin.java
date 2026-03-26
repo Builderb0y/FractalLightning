@@ -48,11 +48,7 @@ public abstract class LightningEntityMixin extends Entity {
 
 	@Definition(
 		id = "getWorld",
-		                           
-			method = "Lnet/minecraft/entity/LightningEntity;getEntityWorld()Lnet/minecraft/world/World;"
-		     
-                                                                                         
-        
+		method = "Lnet/minecraft/entity/LightningEntity;getEntityWorld()Lnet/minecraft/world/World;"
 	)
 	@Definition(id = "setLightningTicksLeft", method = "Lnet/minecraft/world/World;setLightningTicksLeft(I)V")
 	@Expression("this.getWorld().setLightningTicksLeft(@(2))")

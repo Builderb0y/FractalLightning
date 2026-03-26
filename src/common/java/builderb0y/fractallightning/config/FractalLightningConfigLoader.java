@@ -1,6 +1,8 @@
 package builderb0y.fractallightning.config;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -28,8 +30,8 @@ public class FractalLightningConfigLoader {
 	public static final String
 		CONFIG_FILE_NAME = FractalLightning.MODNAME + ".properties";
 	public static final Path
-		CONFIG_FOLDER   = FabricLoader.getInstance().getConfigDir().toAbsolutePath(),
-		CONFIG_FILE     = CONFIG_FOLDER.resolve(CONFIG_FILE_NAME),
+		CONFIG_FOLDER = FabricLoader.getInstance().getConfigDir().toAbsolutePath(),
+		CONFIG_FILE = CONFIG_FOLDER.resolve(CONFIG_FILE_NAME),
 		TMP_CONFIG_FILE = CONFIG_FOLDER.resolve(CONFIG_FILE_NAME + ".tmp");
 
 	public static FractalLightningConfig load() throws Exception {

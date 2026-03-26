@@ -5,17 +5,15 @@ import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.RenderLayers;
 import net.minecraft.client.render.VertexConsumer;
 
 public abstract class LightningRenderer {
 
 	public static RenderLayer LIGHTNING_LAYER;
+
 	static {
-		                            
-			RenderLayer layer = net.minecraft.client.render.RenderLayers.lightning();
-		     
-                                                  
-        
+		RenderLayer layer = RenderLayers.lightning();
 		got:
 		if (FabricLoader.getInstance().isModLoaded("iris")) {
 			try {
@@ -328,6 +326,6 @@ public abstract class LightningRenderer {
 	}
 
 	public void vertex(float x, float y, float z, int argb) {
-		this.buffer.vertex(x, y, z).color(argb)                                          ;
+		this.buffer.vertex(x, y, z).color(argb);
 	}
 }

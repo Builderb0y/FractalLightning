@@ -35,8 +35,16 @@ public class FractalLightningConfig {
 	@Tooltip
 	@EnumHandler(option = EnumDisplayOption.BUTTON)
 	public RainbowMode rainbow_mode = RainbowMode.PRIDE_MONTH_ONLY;
-	@Savable public String rainbow_mode() { return this.rainbow_mode.name().toLowerCase(Locale.ROOT); }
-	@Loadable public void rainbow_mode(String mode) { this.rainbow_mode = RainbowMode.valueOf(mode.toUpperCase(Locale.ROOT)); }
+
+	@Savable
+	public String rainbow_mode() {
+		return this.rainbow_mode.name().toLowerCase(Locale.ROOT);
+	}
+
+	@Loadable
+	public void rainbow_mode(String mode) {
+		this.rainbow_mode = RainbowMode.valueOf(mode.toUpperCase(Locale.ROOT));
+	}
 
 	public static enum RainbowMode {
 		PRIDE_MONTH_ONLY(LocalDate.now().getMonth() == Month.JUNE),
@@ -51,9 +59,13 @@ public class FractalLightningConfig {
 
 	@Target(ElementType.METHOD)
 	@Retention(RetentionPolicy.RUNTIME)
-	public static @interface Savable {}
+	public static @interface Savable {
+
+	}
 
 	@Target(ElementType.METHOD)
 	@Retention(RetentionPolicy.RUNTIME)
-	public static @interface Loadable {}
+	public static @interface Loadable {
+
+	}
 }
