@@ -79,8 +79,8 @@ public class LightningRendererImpl extends LightningRenderer {
 			green = Math.sqrt(green * rcpMagnitude);
 			blue  = Math.sqrt(blue  * rcpMagnitude);
 
-			innerArgb = ColorHelper #if MC_VERSION < MC_1_21_2 .Argb #endif .getArgb(127, Math.min((int)(red *  64.0D + 192.0D), 255), Math.min((int)(green *  64.0D + 192.0D), 255), Math.min((int)(blue *  64.0D + 192.0D), 255));
-			outerArgb = ColorHelper #if MC_VERSION < MC_1_21_2 .Argb #endif .getArgb(0,   Math.min((int)(red * 256.0D         ), 255), Math.min((int)(green * 256.0D         ), 255), Math.min((int)(blue * 256.0D         ), 255));
+			innerArgb = ColorHelper                                         .getArgb(127, Math.min((int)(red *  64.0D + 192.0D), 255), Math.min((int)(green *  64.0D + 192.0D), 255), Math.min((int)(blue *  64.0D + 192.0D), 255));
+			outerArgb = ColorHelper                                         .getArgb(0,   Math.min((int)(red * 256.0D         ), 255), Math.min((int)(green * 256.0D         ), 255), Math.min((int)(blue * 256.0D         ), 255));
 		}
 		else {
 			innerArgb = 0x7FFFFFFF;

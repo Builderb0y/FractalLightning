@@ -11,11 +11,11 @@ public abstract class LightningRenderer {
 
 	public static RenderLayer LIGHTNING_LAYER;
 	static {
-		#if MC_VERSION >= MC_1_21_11
+		                            
 			RenderLayer layer = net.minecraft.client.render.RenderLayers.lightning();
-		#else
-			RenderLayer layer = RenderLayer.getLightning();
-		#endif
+		     
+                                                  
+        
 		got:
 		if (FabricLoader.getInstance().isModLoaded("iris")) {
 			try {
@@ -328,6 +328,6 @@ public abstract class LightningRenderer {
 	}
 
 	public void vertex(float x, float y, float z, int argb) {
-		this.buffer.vertex(x, y, z).color(argb) #if MC_VERSION < MC_1_21_0 .next() #endif;
+		this.buffer.vertex(x, y, z).color(argb)                                          ;
 	}
 }

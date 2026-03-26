@@ -14,7 +14,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LightningEntity;
 import net.minecraft.util.Identifier;
 
-#if MC_VERSION >= MC_1_21_2
+                           
 
 import net.minecraft.client.render.entity.state.LightningEntityRenderState;
 
@@ -36,7 +36,7 @@ public class FractalLightningEntityRenderer extends EntityRenderer<LightningEnti
 		state.seed = entity.seed;
 	}
 
-	#if MC_VERSION >= MC_1_21_9
+	                           
 
 		@Override
 		public void render(
@@ -54,16 +54,16 @@ public class FractalLightningEntityRenderer extends EntityRenderer<LightningEnti
 			);
 		}
 
-	#else
+	     
 
-		@Override
-		public void render(LightningEntityRenderState state, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
-			VertexConsumer buffer = vertexConsumers.getBuffer(LightningRenderer.LIGHTNING_LAYER);
-			Matrix4f matrix = matrices.peek().getPositionMatrix();
-			new LightningRendererImpl(matrix, buffer, state.age).generatePoints(state.seed);
-		}
+           
+                                                                                                                                 
+                                                                                        
+                                                         
+                                                                                   
+   
 
-	#endif
+       
 
 	@Override
 	public boolean canBeCulled(LightningEntity entity) {
@@ -71,26 +71,26 @@ public class FractalLightningEntityRenderer extends EntityRenderer<LightningEnti
 	}
 }
 
-#else
+     
 
-@Environment(EnvType.CLIENT)
-public class FractalLightningEntityRenderer extends EntityRenderer<LightningEntity> {
+                            
+                                                                                     
 
-	public FractalLightningEntityRenderer(EntityRendererFactory.Context context) {
-		super(context);
-	}
+                                                                               
+                 
+  
 
-	@Override
-	public void render(LightningEntity entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
-		VertexConsumer buffer = vertexConsumers.getBuffer(LightningRenderer.LIGHTNING_LAYER);
-		Matrix4f matrix = matrices.peek().getPositionMatrix();
-		new LightningRendererImpl(matrix, buffer, entity.age + tickDelta).generatePoints(entity.seed);
-	}
+          
+                                                                                                                                                  
+                                                                                       
+                                                        
+                                                                                                
+  
 
-	@Override
-	public Identifier getTexture(LightningEntity entity) {
-		return SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE; //this is what vanilla lightning uses.
-	}
-}
+          
+                                                       
+                                                                                       
+  
+ 
 
-#endif
+      
