@@ -1,3 +1,0 @@
-accessWidener v2 named
-
-accessible method net/minecraft/client/render/entity/EntityRenderers register (Lnet/minecraft/entity/EntityType;Lnet/minecraft/client/render/entity/EntityRendererFactory;)V
