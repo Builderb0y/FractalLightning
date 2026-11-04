@@ -11,6 +11,13 @@ public class FractallightningClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		EntityRenderers.register(EntityType.LIGHTNING_BOLT, FractalLightningEntityRenderer::new);
+		EntityRenderers.register(
+			#if MC_VERSION >= MC_26_2_0
+				net.minecraft.world.entity.EntityTypes.LIGHTNING_BOLT,
+			#else
+				EntityType.LIGHTNING_BOLT,
+			#endif
+			FractalLightningEntityRenderer::new
+		);
 	}
 }
